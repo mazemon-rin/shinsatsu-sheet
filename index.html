@@ -1,0 +1,2042 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>診察用 体調・既往歴まとめシート</title>
+  <style>
+    :root {
+      --blue: #1d6fb8;
+      --blue-dark: #164f83;
+      --blue-soft: #eaf5ff;
+      --green: #1d8a68;
+      --green-soft: #eaf8f2;
+      --gray-50: #f8fafc;
+      --gray-100: #eef2f6;
+      --gray-200: #d7e0e9;
+      --gray-500: #64748b;
+      --gray-800: #1e293b;
+      --red-soft: #fff0f0;
+      --red: #b42318;
+      --paper-width: 210mm;
+      --paper-height: 297mm;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--gray-800);
+      background: linear-gradient(180deg, #f3f9ff 0%, #f8fbfc 44%, #ffffff 100%);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 10px 14px;
+      color: #fff;
+      background: var(--blue);
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    button:hover {
+      background: var(--blue-dark);
+    }
+
+    button.secondary {
+      color: var(--blue-dark);
+      background: #dcefff;
+    }
+
+    button.secondary:hover {
+      background: #c9e5fb;
+    }
+
+    button.green {
+      background: var(--green);
+    }
+
+    button.green:hover {
+      background: #176f55;
+    }
+
+    button.danger {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    button.danger:hover {
+      background: #ffe2e2;
+    }
+
+    button.small {
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    .app-header {
+      padding: 22px 20px 16px;
+      color: #fff;
+      background: linear-gradient(120deg, var(--blue-dark), var(--blue), var(--green));
+    }
+
+    .app-header-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 36px);
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
+
+    .app-subtitle {
+      margin: 8px 0 0;
+      color: #e9f7ff;
+      font-size: 15px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .saved-status {
+      min-width: 9em;
+      color: #e7f7ef;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .workspace {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: minmax(380px, 0.9fr) minmax(560px, 1.1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .form-panel,
+    .preview-panel {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      box-shadow: 0 14px 40px rgba(15, 52, 91, 0.08);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    details {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(15, 52, 91, 0.05);
+    }
+
+    summary {
+      padding: 16px 18px;
+      color: var(--blue-dark);
+      background: var(--blue-soft);
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 20px;
+      list-style-position: inside;
+    }
+
+    .section-fields {
+      padding: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: #334155;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #c9d5df;
+      border-radius: 7px;
+      padding: 9px 10px;
+      color: var(--gray-800);
+      background: #fff;
+      min-height: 42px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 78px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      outline: 3px solid rgba(29, 111, 184, 0.16);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .range-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      min-height: 32px;
+    }
+
+    .range-number {
+      min-width: 44px;
+      padding: 6px 10px;
+      color: var(--blue-dark);
+      background: var(--blue-soft);
+      border-radius: 7px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .check-line {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .check-line input {
+      width: auto;
+      min-height: auto;
+      accent-color: var(--green);
+    }
+
+    .check-line:has(input:checked) {
+      color: #0f513f;
+      background: var(--green-soft);
+      border-color: #7dbba5;
+    }
+
+    .choice-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .choice-group.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .choice-title {
+      margin: 14px 0 8px;
+      color: var(--blue-dark);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .choice-subtitle {
+      grid-column: 1 / -1;
+      margin-top: 4px;
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .choice-hint {
+      margin: 3px 0 8px;
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .other-field.hidden {
+      display: none;
+    }
+
+    .rows {
+      display: grid;
+      gap: 10px;
+    }
+
+    .entry-row {
+      padding: 14px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+    }
+
+    .entry-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .entry-row-title {
+      color: var(--green);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+
+    .entry-grid .choice-group {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .entry-grid .wide-field {
+      grid-column: 1 / -1;
+    }
+
+    .entry-grid .half-field {
+      grid-column: span 2;
+    }
+
+    .entry-grid textarea {
+      min-height: 68px;
+    }
+
+    .timeline-choice-group {
+      max-height: 220px;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .actions-line {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .note {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 20px 24px;
+      color: var(--gray-500);
+      font-size: 12px;
+    }
+
+    .ai-summary-panel {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid #a8cde9;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f2f9ff 0%, #ffffff 100%);
+    }
+
+    .ai-summary-panel h3 {
+      margin: 0 0 10px;
+      color: var(--blue-dark);
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .ai-summary-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .ai-summary-note {
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      color: #334155;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 7px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .ai-output-label {
+      margin-bottom: 0;
+    }
+
+    .ai-output {
+      min-height: 260px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .paper-shell {
+      padding: 18px;
+      background: var(--gray-100);
+      overflow: auto;
+    }
+
+    .paper {
+      width: var(--paper-width);
+      min-height: var(--paper-height);
+      margin: 0 auto;
+      padding: 10mm;
+      background: #fff;
+      box-shadow: 0 8px 28px rgba(15, 52, 91, 0.16);
+      color: #111827;
+    }
+
+    .sheet-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      border-bottom: 3px solid var(--blue);
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .sheet-title h1 {
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: 18pt;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .sheet-meta {
+      display: grid;
+      grid-template-columns: 1.4fr 0.7fr 0.75fr 1.1fr;
+      gap: 3px;
+      margin-bottom: 5px;
+    }
+
+    .meta-box,
+    .mini-box {
+      border: 1px solid #b9c8d8;
+      padding: 3px 5px;
+      min-height: 22px;
+    }
+
+    .meta-label,
+    .mini-label {
+      color: #475569;
+      font-size: 7.5pt;
+      font-weight: 800;
+      margin-right: 4px;
+    }
+
+    .meta-value,
+    .mini-value {
+      font-size: 9.5pt;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .important {
+      display: grid;
+      grid-template-columns: 1fr 0.75fr 0.62fr 1.45fr;
+      gap: 4px;
+      padding: 5px;
+      background: var(--blue-soft);
+      border: 1px solid #a8cde9;
+      margin-bottom: 5px;
+    }
+
+    .important.high-alert {
+      background: var(--red-soft);
+      border-color: #f4b7b0;
+    }
+
+    .section-title {
+      margin: 6px 0 3px;
+      padding: 2px 6px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 9.3pt;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+
+    .section-title.green-title {
+      background: var(--green);
+    }
+
+    .print-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 5px;
+    }
+
+    .print-grid.three-col {
+      grid-template-columns: 1.1fr 0.9fr 1fr;
+    }
+
+    .print-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 7.9pt;
+      line-height: 1.25;
+    }
+
+    .print-table th,
+    .print-table td {
+      border: 1px solid #aebdcc;
+      padding: 2px 3px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    .print-table th {
+      color: #203348;
+      background: #e8eef5;
+      font-weight: 900;
+    }
+
+    .print-table tr.alert-row td {
+      background: var(--red-soft);
+    }
+
+    .compact-list {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 8pt;
+      line-height: 1.3;
+    }
+
+    .compact-list li {
+      margin: 0 0 1px;
+    }
+
+    .text-box {
+      border: 1px solid #aebdcc;
+      padding: 3px 5px;
+      min-height: 22px;
+      font-size: 8pt;
+      line-height: 1.3;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .treatment-tags {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-bottom: 3px;
+    }
+
+    .tag {
+      padding: 2px 5px;
+      border: 1px solid #9ccab8;
+      color: #115d48;
+      background: var(--green-soft);
+      border-radius: 999px;
+      font-size: 7.8pt;
+      font-weight: 800;
+    }
+
+    .sheet-warning {
+      margin-top: 5px;
+      color: #475569;
+      border-top: 1px solid #b9c8d8;
+      padding-top: 3px;
+      font-size: 6.8pt;
+      line-height: 1.25;
+    }
+
+    .placeholder {
+      color: #94a3b8;
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .paper {
+        transform-origin: top left;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        font-size: 15px;
+      }
+
+      .app-header {
+        padding: 18px 14px 14px;
+      }
+
+      .workspace {
+        padding: 12px;
+      }
+
+      .grid,
+      .grid.three,
+      .entry-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .checkbox-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .choice-group,
+      .choice-group.three,
+      .entry-grid .choice-group {
+        grid-template-columns: 1fr;
+      }
+
+      .entry-grid .wide-field,
+      .entry-grid .half-field {
+        grid-column: 1 / -1;
+      }
+
+      .paper-shell {
+        padding: 10px;
+      }
+
+      .paper {
+        width: 100%;
+        min-width: 760px;
+      }
+
+      .note {
+        padding: 0 12px 20px;
+      }
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .app-header,
+      .form-panel,
+      .ai-summary-panel,
+      .panel-head,
+      .note {
+        display: none !important;
+      }
+
+      .workspace {
+        display: block;
+        max-width: none;
+        padding: 0;
+      }
+
+      .preview-panel {
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .paper-shell {
+        padding: 0;
+        background: #fff;
+        overflow: visible;
+      }
+
+      .paper {
+        width: 210mm;
+        min-height: 297mm;
+        height: 297mm;
+        margin: 0;
+        padding: 8mm;
+        box-shadow: none;
+        page-break-after: avoid;
+        overflow: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div>
+        <h1 class="app-title">診察用 体調・既往歴まとめシート</h1>
+        <p class="app-subtitle">入力内容はこのブラウザ内だけで扱います。保存も localStorage のみで、サーバー送信はありません。</p>
+      </div>
+      <div class="toolbar" aria-label="操作">
+        <button type="button" class="secondary" id="sampleBtn">サンプル入力</button>
+        <button type="button" class="green" id="saveBtn">ローカル保存</button>
+        <button type="button" class="secondary" id="loadBtn">保存データ読み込み</button>
+        <button type="button" id="printBtn">印刷</button>
+        <button type="button" class="danger" id="clearBtn">入力クリア</button>
+        <span class="saved-status" id="savedStatus" aria-live="polite"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="form-panel" aria-label="入力フォーム">
+      <div class="panel-head">
+        <h2>入力フォーム</h2>
+      </div>
+      <div class="panel-body">
+        <details open>
+          <summary>1. 基本情報</summary>
+          <div class="section-fields grid">
+            <label>氏名<input id="name" type="text" autocomplete="name" placeholder="例：山田 太郎"></label>
+            <label>年齢<input id="age" type="number" min="0" max="130" placeholder="例：68"></label>
+            <label>性別
+              <select id="gender">
+                <option value="">選択してください</option>
+                <option>男性</option>
+                <option>女性</option>
+                <option>その他</option>
+                <option>回答しない</option>
+              </select>
+            </label>
+            <label>作成日<input id="createdDate" type="date"></label>
+            <label>作成日がおおよその場合<input id="createdDateApprox" type="text" placeholder="例：2026年2月頃"></label>
+            <label>受診科
+              <select id="department">
+                <option value="">選択してください</option>
+                <option>内科</option>
+                <option>循環器内科</option>
+                <option>糖尿病内科</option>
+                <option>心療内科</option>
+                <option>精神科</option>
+                <option>耳鼻咽喉科</option>
+                <option>脳神経内科</option>
+                <option>整形外科</option>
+                <option>消化器内科</option>
+                <option>皮膚科</option>
+                <option>その他</option>
+              </select>
+            </label>
+            <label class="other-field hidden" id="departmentOtherWrap">受診科 その他<input id="departmentOther" type="text" placeholder="例：脳神経外科"></label>
+            <div class="full">
+              <div class="choice-title">受診科に合わせた主治医に伝えたい症状</div>
+              <div class="choice-group three" id="departmentSymptomChoices"></div>
+              <label class="other-field hidden" id="departmentSymptomOtherWrap">その他・自由入力<input id="departmentSymptomOther" type="text" placeholder="例：候補にない症状"></label>
+            </div>
+            <label class="full">主治医に伝えたい一番の目的<textarea id="mainPurpose" placeholder="例：最近の血圧上昇と頭痛、仕事への影響について相談したい"></textarea></label>
+          </div>
+        </details>
+
+        <details open>
+          <summary>2. 現在一番困っている症状</summary>
+          <div class="section-fields grid">
+            <div class="full">
+              <div class="choice-title">主症状（複数選択可）</div>
+              <div class="choice-group three" id="mainSymptomChoices"></div>
+              <label class="other-field hidden" id="mainSymptomOtherWrap">その他・自由入力<input id="mainSymptomOther" type="text" placeholder="例：候補にない症状"></label>
+            </div>
+            <label>症状が始まった日<input id="symptomStartDate" type="date"></label>
+            <label>時期不明・おおよそ<input id="symptomStartApprox" type="text" placeholder="例：2週間前から、2026年2月頃"></label>
+            <label class="full">症状の強さ 0〜10
+              <select id="severity"></select>
+            </label>
+            <label>頻度
+              <select id="frequency"></select>
+            </label>
+            <label class="other-field hidden" id="frequencyOtherWrap">頻度 その他<input id="frequencyOther" type="text" placeholder="例：週3回程度"></label>
+            <label>悪化する場面
+              <select id="worseWhen"></select>
+            </label>
+            <label class="other-field hidden" id="worseWhenOtherWrap">悪化する場面 その他<input id="worseWhenOther" type="text"></label>
+            <label>楽になる場面
+              <select id="betterWhen"></select>
+            </label>
+            <label class="other-field hidden" id="betterWhenOtherWrap">楽になる場面 その他<input id="betterWhenOther" type="text"></label>
+          </div>
+        </details>
+
+        <details open>
+          <summary>3. 症状の経過</summary>
+          <div class="section-fields">
+            <div class="rows" id="timelineRows"></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="timeline">行を追加</button></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. 既往歴</summary>
+          <div class="section-fields">
+            <div class="rows" id="historyRows"></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="history">行を追加</button></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>5. 現在治療中の病気</summary>
+          <div class="section-fields">
+            <div class="choice-group three" id="treatmentDiseaseChoices"></div>
+            <label class="other-field hidden" id="diseaseOtherWrap">その他・補足<textarea id="diseaseOther" placeholder="例：通院先、候補にない病名など"></textarea></label>
+          </div>
+        </details>
+
+        <details>
+          <summary>6. 服薬情報</summary>
+          <div class="section-fields">
+            <div class="rows" id="medicineRows"></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="medicine">行を追加</button></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>7. 検査・診察結果</summary>
+          <div class="section-fields">
+            <div class="rows" id="examRows"></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="exam">行を追加</button></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>8. 生活・仕事への影響</summary>
+          <div class="section-fields grid">
+            <label>仕事への影響<select id="workImpact"></select></label>
+            <label class="other-field hidden" id="workImpactOtherWrap">仕事への影響 その他<input id="workImpactOther" type="text"></label>
+            <label>睡眠<select id="sleepImpact"></select></label>
+            <label class="other-field hidden" id="sleepImpactOtherWrap">睡眠 その他<input id="sleepImpactOther" type="text"></label>
+            <label>食欲<select id="appetiteImpact"></select></label>
+            <label class="other-field hidden" id="appetiteImpactOtherWrap">食欲 その他<input id="appetiteImpactOther" type="text"></label>
+            <label>気分<select id="moodImpact"></select></label>
+            <label class="other-field hidden" id="moodImpactOtherWrap">気分 その他<input id="moodImpactOther" type="text"></label>
+            <label>家事や日常生活への影響<select id="dailyImpact"></select></label>
+            <label class="other-field hidden" id="dailyImpactOtherWrap">日常生活 その他<input id="dailyImpactOther" type="text"></label>
+            <label>休職や入院の相談状況<textarea id="leaveConsultation"></textarea></label>
+          </div>
+        </details>
+
+        <details open>
+          <summary>9. 医師に相談したいこと</summary>
+          <div class="section-fields">
+            <div class="choice-group three" id="questionChoiceGroup"></div>
+            <label class="other-field hidden" id="questionChoiceOtherWrap">その他・自由入力<input id="questionChoiceOther" type="text"></label>
+            <div class="rows" id="questionRows"></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="question">行を追加</button></div>
+          </div>
+        </details>
+
+        <section class="ai-summary-panel" aria-label="AI要約用テキスト">
+          <h3>AI要約用テキスト</h3>
+          <p class="ai-summary-note">AI要約を使う場合は、個人情報や医療情報を外部サービスに入力することになります。氏名や住所など、不要な個人情報は削除してから利用してください。この機能は診断ではなく、診察時の説明補助を目的としています。</p>
+          <div class="ai-summary-actions">
+            <button type="button" id="createAiPromptBtn">AI要約用テキストを作成</button>
+            <button type="button" class="secondary" id="copyAiPromptBtn">コピー</button>
+            <button type="button" class="green" id="openChatGptBtn">ChatGPTを開く</button>
+          </div>
+          <label class="ai-output-label">生成されたプロンプト
+            <textarea id="aiPromptText" class="ai-output" placeholder="「AI要約用テキストを作成」を押すと、ChatGPTに貼り付ける文章がここに表示されます。"></textarea>
+          </label>
+        </section>
+      </div>
+    </section>
+
+    <section class="preview-panel" aria-label="完成プレビュー">
+      <div class="panel-head">
+        <h2>完成プレビュー</h2>
+      </div>
+      <div class="paper-shell">
+        <article class="paper" id="previewPaper">
+          <div class="sheet-title">
+            <h1>診察用 体調・既往歴まとめシート</h1>
+            <div class="mini-box"><span class="mini-label">性別</span><span class="mini-value" data-preview="gender"></span></div>
+          </div>
+
+          <div class="sheet-meta">
+            <div class="meta-box"><span class="meta-label">氏名</span><span class="meta-value" data-preview="name"></span></div>
+            <div class="meta-box"><span class="meta-label">年齢</span><span class="meta-value" data-preview="age"></span></div>
+            <div class="meta-box"><span class="meta-label">作成日</span><span class="meta-value" data-preview="createdDate"></span></div>
+            <div class="meta-box"><span class="meta-label">受診科</span><span class="meta-value" data-preview="department"></span></div>
+          </div>
+
+          <div class="important" id="importantBox">
+            <div class="mini-box"><div class="mini-label">一番困っている症状</div><div class="mini-value" data-preview="mainSymptom"></div></div>
+            <div class="mini-box"><div class="mini-label">いつから</div><div class="mini-value" data-preview="symptomStart"></div></div>
+            <div class="mini-box"><div class="mini-label">症状の強さ</div><div class="mini-value" id="severityPreview"></div></div>
+            <div class="mini-box"><div class="mini-label">医師に相談したいこと</div><ul class="compact-list" id="topQuestions"></ul></div>
+          </div>
+
+          <div class="section-title">主治医に伝えたい一番の目的</div>
+          <div class="text-box" data-preview="mainPurpose"></div>
+          <div class="section-title">受診科に合わせた症状候補</div>
+          <div class="text-box" data-preview="departmentSymptoms"></div>
+
+          <div class="section-title">症状の経過</div>
+          <table class="print-table">
+            <thead>
+              <tr><th style="width: 16%;">日付・時期</th><th>症状経過</th><th style="width: 17%;">血圧や数値</th><th style="width: 18%;">対応</th><th style="width: 18%;">その後</th></tr>
+            </thead>
+            <tbody id="timelinePreview"></tbody>
+          </table>
+
+          <div class="print-grid">
+            <div>
+              <div class="section-title green-title">既往歴</div>
+              <table class="print-table">
+                <thead><tr><th style="width: 21%;">時期</th><th>病名・けが</th><th>治療内容</th><th>現在</th></tr></thead>
+                <tbody id="historyPreview"></tbody>
+              </table>
+            </div>
+            <div>
+              <div class="section-title green-title">現在治療中の病気</div>
+              <div class="text-box">
+                <div class="treatment-tags" id="diseaseTags"></div>
+                <div id="diseaseOtherPreview"></div>
+              </div>
+              <div class="section-title green-title">服薬情報</div>
+              <table class="print-table">
+                <thead><tr><th>種類</th><th>薬名</th><th style="width: 12%;">量</th><th style="width: 16%;">回数</th><th style="width: 19%;">開始</th><th>副作用</th></tr></thead>
+                <tbody id="medicinePreview"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="print-grid three-col">
+            <div>
+              <div class="section-title">検査・診察結果</div>
+              <table class="print-table">
+                <thead><tr><th style="width: 20%;">検査日・診察日</th><th>検査内容</th><th>結果</th><th>医師の説明</th></tr></thead>
+                <tbody id="examPreview"></tbody>
+              </table>
+            </div>
+            <div>
+              <div class="section-title">生活・仕事への影響</div>
+              <table class="print-table">
+                <tbody id="impactPreview"></tbody>
+              </table>
+            </div>
+            <div>
+              <div class="section-title">医師に聞きたいこと</div>
+              <div class="text-box"><ul class="compact-list" id="questionsPreview"></ul></div>
+              <div class="section-title">症状メモ</div>
+              <table class="print-table">
+                <tbody>
+                  <tr><th>頻度</th><td data-preview="frequency"></td></tr>
+                  <tr><th>悪化</th><td data-preview="worseWhen"></td></tr>
+                  <tr><th>軽快</th><td data-preview="betterWhen"></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="sheet-warning">このシートは診察時の説明補助を目的としたもので、診断を行うものではありません。強い胸痛、息苦しさ、麻痺、ろれつが回らない、激しい頭痛、高度な血圧上昇などがある場合は、すぐに医療機関へ相談してください。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <p class="note">このシートは診察時の説明補助を目的としたもので、診断を行うものではありません。強い胸痛、息苦しさ、麻痺、ろれつが回らない、激しい頭痛、高度な血圧上昇などがある場合は、すぐに医療機関へ相談してください。</p>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var STORAGE_KEY = "medical_summary_sheet_v1";
+      var OTHER = "その他";
+      var DEPARTMENTS = ["内科", "循環器内科", "糖尿病内科", "心療内科", "精神科", "耳鼻咽喉科", "脳神経内科", "整形外科", "消化器内科", "皮膚科", "その他"];
+      var DEPARTMENT_SYMPTOMS = {
+        "内科": ["発熱", "だるさ", "食欲不振", "体重減少", "めまい", "頭痛", "吐き気", "腹痛", "むくみ", "不眠", "その他"],
+        "循環器内科": ["血圧が高い", "動悸", "胸の痛み", "息苦しさ", "脈が乱れる", "めまい", "むくみ", "疲れやすい", "背中の痛み", "運動時の息切れ", "その他"],
+        "糖尿病内科": ["血糖値が高い", "HbA1cが高い", "のどが渇く", "尿が多い", "体重減少", "疲れやすい", "手足のしびれ", "目がかすむ", "食事管理が難しい", "教育入院を相談したい", "その他"],
+        "心療内科": ["不安が強い", "気分が落ち込む", "眠れない", "涙が出る", "仕事に向き合うとつらい", "動悸", "息苦しさ", "耳鳴りがつらい", "やる気が出ない", "休職を相談したい", "その他"],
+        "精神科": ["不安が強い", "気分が落ち込む", "眠れない", "イライラする", "集中できない", "涙が出る", "意欲が出ない", "希死念慮がある", "薬の副作用がつらい", "生活に支障がある", "その他"],
+        "耳鼻咽喉科": ["耳鳴り", "聞こえにくい", "耳が詰まる感じ", "めまい", "耳の痛み", "鼻づまり", "のどの違和感", "声が出にくい", "飲み込みにくい", "片耳だけ症状がある", "その他"],
+        "脳神経内科": ["頭痛", "手足のしびれ", "手足の脱力", "ろれつが回らない", "めまい", "ふらつき", "物忘れ", "視界がぼやける", "顔の違和感", "意識がぼんやりする", "その他"],
+        "整形外科": ["首の痛み", "肩の痛み", "背中の痛み", "腰痛", "関節痛", "手足のしびれ", "手足の脱力", "歩きにくい", "けが", "痛みで眠れない", "その他"],
+        "消化器内科": ["胃もたれ", "胃痛", "胸やけ", "吐き気", "腹痛", "下痢", "便秘", "食欲不振", "体重減少", "飲み込みにくい", "その他"],
+        "皮膚科": ["かゆみ", "湿疹", "赤み", "腫れ", "痛み", "できもの", "乾燥", "ただれ", "薬で悪化した", "長引いている", "その他"],
+        "その他": ["その他"]
+      };
+      var MAIN_SYMPTOMS = ["耳鳴り", "血圧が高い", "胸の痛み", "息苦しさ", "動悸", "頭痛", "めまい", "だるさ", "不眠", "気分の落ち込み", "不安", "食欲不振", "手足のしびれ", "手足の脱力", "その他"];
+      var TIMELINE_CANDIDATES = {
+        "耳鳴り": ["いつから鳴っている", "片耳だけ", "両耳", "キーンという音", "ジーという音", "常に鳴っている", "静かな場所で強い", "仕事中に強い", "睡眠に影響", "受診済み", "その他"],
+        "血圧が高い": ["家庭血圧が高い", "健診で指摘", "上が160以上", "上が180以上", "下が100以上", "頭痛あり", "息苦しさあり", "薬を開始", "薬を増量", "受診済み", "その他"],
+        "胸の痛み": ["胸が締めつけられる", "チクチクする", "ズキズキする", "背中にも痛み", "運動時に出る", "安静時にも出る", "息苦しさを伴う", "心電図検査済み", "異常なしと言われた", "その他"],
+        "息苦しさ": ["安静時に息苦しい", "動くと息苦しい", "仕事中に強い", "横になると楽", "動悸を伴う", "胸の違和感あり", "不安時に強い", "受診済み", "検査済み", "その他"],
+        "動悸": ["ドキドキする", "脈が速い", "脈が飛ぶ感じ", "仕事中に強い", "不安時に強い", "息苦しさを伴う", "胸の違和感あり", "安静で改善", "検査済み", "その他"],
+        "頭痛": ["ズキズキする", "締めつけられる", "片側だけ", "全体が重い", "血圧上昇時に強い", "吐き気を伴う", "めまいを伴う", "休むと改善", "受診済み", "その他"],
+        "めまい": ["ぐるぐる回る", "ふわふわする", "立つと強い", "歩きにくい", "耳鳴りを伴う", "吐き気を伴う", "横になると楽", "繰り返す", "受診済み", "その他"],
+        "だるさ": ["朝からだるい", "一日中だるい", "仕事後に強い", "薬を飲んでから強い", "寝ても回復しない", "食欲低下あり", "気分の落ち込みあり", "横になっていたい", "受診済み", "その他"],
+        "不眠": ["寝つきが悪い", "途中で目が覚める", "早朝に目が覚める", "眠りが浅い", "薬がないと眠れない", "日中眠い", "不安で眠れない", "生活に支障あり", "受診済み", "その他"],
+        "気分の落ち込み": ["仕事を考えるとつらい", "涙が出る", "やる気が出ない", "集中できない", "焦りがある", "眠れない", "食欲が落ちた", "休職を相談したい", "受診済み", "その他"],
+        "不安": ["仕事を考えるとつらい", "涙が出る", "やる気が出ない", "集中できない", "焦りがある", "眠れない", "食欲が落ちた", "休職を相談したい", "受診済み", "その他"],
+        "手足のしびれ": ["右側だけ", "左側だけ", "両側", "手に出る", "足に出る", "力が入りにくい", "一時的に出た", "繰り返す", "受診済み", "その他"],
+        "手足の脱力": ["右側だけ", "左側だけ", "両側", "手に出る", "足に出る", "力が入りにくい", "一時的に出た", "繰り返す", "受診済み", "その他"],
+        "その他": ["その他"]
+      };
+      var TIMELINE_ACTIONS = ["休んだ", "横になった", "薬を飲んだ", "受診した", "相談した", "仕事を休んだ", "業務量を調整した", "救急相談した", "様子を見た", "その他"];
+      var TIMELINE_RESULTS = ["改善した", "少し改善した", "変わらない", "悪化した", "繰り返している", "一時的だった", "現在も続いている", "その他"];
+      var FREQUENCIES = ["常にある", "1日に何度もある", "時々ある", "朝に強い", "夜に強い", "仕事中に強い", "運動時に強い", "食後に強い", "不定期", "その他"];
+      var WORSE_WHEN = ["仕事中", "パソコン作業中", "電話対応中", "ストレスを感じた時", "寝不足の時", "食後", "運動時", "安静時", "朝", "夜", "その他"];
+      var BETTER_WHEN = ["横になる", "休む", "静かな場所にいる", "薬を飲む", "深呼吸する", "入浴する", "睡眠をとる", "仕事から離れる", "食事をとる", "特になし", "その他"];
+      var HISTORY_DISEASES = ["高血圧", "糖尿病", "脂質異常症", "心臓病", "脳卒中", "喘息", "胃腸の病気", "うつ病", "適応障害", "不安障害", "睡眠障害", "耳の病気", "けが・骨折", "手術歴", "アレルギー", "その他"];
+      var HISTORY_TREATMENTS = ["通院中", "経過観察", "薬を服用中", "手術した", "入院した", "現在は治療なし", "不明", "その他"];
+      var HISTORY_STATUSES = ["治療中", "改善", "悪化", "変化なし", "再発の可能性あり", "現在は症状なし", "不明", "その他"];
+      var TREATMENT_DISEASES = ["高血圧", "糖尿病", "脂質異常症", "心臓病", "耳鳴り", "めまい", "睡眠障害", "うつ病", "適応障害", "不安障害", "逆流性食道炎", "その他"];
+      var MEDICINE_TYPES = ["血圧の薬", "糖尿病の薬", "睡眠薬", "抗不安薬", "抗うつ薬", "胃薬", "痛み止め", "めまいの薬", "耳鳴りの薬", "その他"];
+      var MEDICINE_TIMES = ["朝", "昼", "夕", "寝る前", "頓服", "1日1回", "1日2回", "1日3回", "その他"];
+      var SIDE_EFFECTS = ["眠気", "だるさ", "ふらつき", "口の渇き", "胃もたれ", "吐き気", "めまい", "血圧低下", "効きすぎる感じ", "効果が分からない", "その他"];
+      var EXAM_CONTENTS = ["血液検査", "尿検査", "心電図", "心エコー", "レントゲン", "CT", "MRI", "聴力検査", "血圧測定", "HbA1c", "その他"];
+      var EXAM_RESULTS = ["異常なし", "経過観察", "再検査", "薬を開始", "薬を増量", "専門医紹介", "入院相談", "休職相談", "生活改善指導", "その他"];
+      var WORK_IMPACTS = ["通常勤務できる", "勤務はできるがつらい", "休みが必要", "在宅勤務なら可能", "業務量を減らしたい", "電話対応がつらい", "パソコン作業がつらい", "通勤がつらい", "休職を相談したい", "退職も考えている", "その他"];
+      var SLEEP_IMPACTS = ["よく眠れる", "寝つきが悪い", "途中で目が覚める", "早朝に目が覚める", "薬がないと眠れない", "眠りが浅い", "日中眠い", "その他"];
+      var APPETITE_IMPACTS = ["普通", "少ない", "食べられない", "ムラがある", "吐き気がある", "体重が減った", "食事管理が難しい", "その他"];
+      var MOOD_IMPACTS = ["普通", "不安が強い", "落ち込む", "涙が出る", "イライラする", "やる気が出ない", "集中できない", "焦りがある", "その他"];
+      var DAILY_IMPACTS = ["普段通り", "家事がつらい", "外出がつらい", "横になっている時間が多い", "入浴が面倒", "食事準備がつらい", "家族に心配をかけている", "その他"];
+      var QUESTION_CHOICES = ["原因を知りたい", "薬の副作用を確認したい", "薬の変更を相談したい", "検査が必要か相談したい", "専門医紹介が必要か相談したい", "入院が必要か相談したい", "休職が必要か相談したい", "仕事を続けてよいか相談したい", "生活で注意することを知りたい", "緊急時の目安を知りたい", "その他"];
+      var listDefs = {
+        timeline: {
+          container: "timelineRows",
+          fields: [
+            ["date", "日付", "date"],
+            ["dateApprox", "時期不明・おおよそ", "text"],
+            ["courseChoices", "症状経過候補", "checkboxes"],
+            ["courseOther", "症状経過 その他・自由入力", "textarea"],
+            ["value", "血圧や数値", "text"],
+            ["action", "対応したこと", "select", TIMELINE_ACTIONS],
+            ["actionOther", "対応 その他", "text"],
+            ["result", "その後の変化", "select", TIMELINE_RESULTS],
+            ["resultOther", "変化 その他", "text"]
+          ]
+        },
+        history: {
+          container: "historyRows",
+          fields: [
+            ["periodDate", "時期（日付）", "date"],
+            ["periodApprox", "時期不明・おおよそ", "text"],
+            ["name", "病名・けが", "select", HISTORY_DISEASES],
+            ["nameOther", "病名・けが その他", "text"],
+            ["treatment", "治療内容", "select", HISTORY_TREATMENTS],
+            ["treatmentOther", "治療内容 その他", "text"],
+            ["status", "現在の状態", "select", HISTORY_STATUSES],
+            ["statusOther", "現在の状態 その他", "text"]
+          ]
+        },
+        medicine: {
+          container: "medicineRows",
+          fields: [
+            ["type", "薬の種類", "select", MEDICINE_TYPES],
+            ["typeOther", "薬の種類 その他", "text"],
+            ["name", "薬名", "text"],
+            ["dose", "量", "text"],
+            ["times", "回数", "select", MEDICINE_TIMES],
+            ["timesOther", "回数 その他", "text"],
+            ["startDate", "飲み始めた日", "date"],
+            ["startApprox", "時期不明・おおよそ", "text"],
+            ["sideEffect", "気になる副作用", "select", SIDE_EFFECTS],
+            ["sideEffectOther", "副作用 その他", "text"]
+          ]
+        },
+        exam: {
+          container: "examRows",
+          fields: [
+            ["date", "検査日・診察日", "date"],
+            ["dateApprox", "時期不明・おおよそ", "text"],
+            ["content", "検査内容", "select", EXAM_CONTENTS],
+            ["contentOther", "検査内容 その他", "text"],
+            ["result", "結果", "select", EXAM_RESULTS],
+            ["resultOther", "結果 その他", "text"],
+            ["doctorComment", "医師から言われたこと", "text"]
+          ]
+        },
+        question: {
+          container: "questionRows",
+          fields: [
+            ["text", "相談したいこと", "textarea"]
+          ]
+        }
+      };
+
+      var simpleIds = [
+        "name", "age", "gender", "createdDate", "createdDateApprox", "department", "departmentOther", "departmentSymptomOther", "mainPurpose",
+        "mainSymptomOther", "symptomStartDate", "symptomStartApprox", "severity", "frequency", "frequencyOther", "worseWhen", "worseWhenOther", "betterWhen", "betterWhenOther",
+        "diseaseOther", "workImpact", "workImpactOther", "sleepImpact", "sleepImpactOther", "appetiteImpact", "appetiteImpactOther",
+        "moodImpact", "moodImpactOther", "dailyImpact", "dailyImpactOther", "leaveConsultation", "questionChoiceOther"
+      ];
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function fillSelect(id, options, includeBlank) {
+        var select = $(id);
+        if (!select) return;
+        var html = includeBlank === false ? "" : '<option value="">選択してください</option>';
+        html += options.map(function (option) {
+          return '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
+        }).join("");
+        select.innerHTML = html;
+      }
+
+      function renderCheckboxGroup(containerId, name, options) {
+        var container = $(containerId);
+        if (!container) return;
+        container.innerHTML = checkboxGroupHtml(name, options);
+      }
+
+      function checkboxGroupHtml(name, options, selectedValues) {
+        selectedValues = selectedValues || [];
+        var common = options.filter(function (option) { return option !== OTHER; });
+        var hasOther = options.indexOf(OTHER) !== -1;
+        var html = '<div class="choice-subtitle">よく使う項目</div>';
+        html += common.map(function (option) {
+          var checked = selectedValues.indexOf(option) !== -1 ? " checked" : "";
+          return '<label class="check-line"><input type="checkbox" name="' + name + '" value="' + escapeHtml(option) + '"' + checked + '>' + escapeHtml(option) + '</label>';
+        }).join("");
+        if (hasOther) {
+          var otherChecked = selectedValues.indexOf(OTHER) !== -1 ? " checked" : "";
+          html += '<div class="choice-subtitle">その他</div>';
+          html += '<label class="check-line"><input type="checkbox" name="' + name + '" value="' + escapeHtml(OTHER) + '"' + otherChecked + '>' + escapeHtml(OTHER) + '</label>';
+        }
+        return html;
+      }
+
+      function rowCheckboxGroupHtml(options, selectedValues) {
+        selectedValues = selectedValues || [];
+        var common = options.filter(function (option) { return option !== OTHER; });
+        var hasOther = options.indexOf(OTHER) !== -1;
+        var html = '<div class="choice-subtitle">よく使う項目</div>';
+        html += common.map(function (option) {
+          var checked = selectedValues.indexOf(option) !== -1 ? " checked" : "";
+          return '<label class="check-line"><input type="checkbox" value="' + escapeHtml(option) + '"' + checked + '>' + escapeHtml(option) + '</label>';
+        }).join("");
+        if (hasOther) {
+          var otherChecked = selectedValues.indexOf(OTHER) !== -1 ? " checked" : "";
+          html += '<div class="choice-subtitle">その他</div>';
+          html += '<label class="check-line"><input type="checkbox" value="' + escapeHtml(OTHER) + '"' + otherChecked + '>' + escapeHtml(OTHER) + '</label>';
+        }
+        return html;
+      }
+
+      function legacyCheckboxGroupHtml(name, options) {
+        return options.map(function (option) {
+          return '<label class="check-line"><input type="checkbox" name="' + name + '" value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</label>';
+        }).join("");
+      }
+
+      function getCheckedValues(name) {
+        return Array.prototype.map.call(document.querySelectorAll('input[name="' + name + '"]:checked'), function (input) {
+          return input.value;
+        });
+      }
+
+      function uniqueValues(values) {
+        var seen = {};
+        return values.filter(function (value) {
+          if (!value || seen[value]) return false;
+          seen[value] = true;
+          return true;
+        });
+      }
+
+      function getTimelineOptions() {
+        var selected = getCheckedValues("mainSymptom");
+        if (!selected.length) selected = [OTHER];
+        var values = [];
+        selected.forEach(function (symptom) {
+          values = values.concat(TIMELINE_CANDIDATES[symptom] || []);
+        });
+        if (values.indexOf(OTHER) === -1) values.push(OTHER);
+        return uniqueValues(values);
+      }
+
+      function setCheckedValues(name, values) {
+        var selected = values || [];
+        document.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
+          input.checked = selected.indexOf(input.value) !== -1;
+        });
+      }
+
+      function joinWithOther(values, other) {
+        var result = (values || []).filter(Boolean);
+        var extra = String(other || "").trim();
+        if (extra) result.push(extra);
+        return result.join("、");
+      }
+
+      function selectWithOther(selectValue, otherValue) {
+        var values = [];
+        if (selectValue) values.push(selectValue);
+        if (String(otherValue || "").trim()) values.push(String(otherValue).trim());
+        return values.join("、");
+      }
+
+      function dateWithApprox(dateValue, approxValue) {
+        var values = [];
+        if (dateValue) values.push(formatDate(dateValue));
+        if (String(approxValue || "").trim()) values.push(String(approxValue).trim());
+        return values.join(" / ");
+      }
+
+      function toggleOther(wrapId, shouldShow) {
+        var wrap = $(wrapId);
+        if (wrap) wrap.classList.toggle("hidden", !shouldShow);
+      }
+
+      function updateConditionalFields() {
+        toggleOther("departmentOtherWrap", $("department").value === OTHER);
+        toggleOther("departmentSymptomOtherWrap", getCheckedValues("departmentSymptom").indexOf(OTHER) !== -1 || $("department").value === OTHER);
+        toggleOther("mainSymptomOtherWrap", getCheckedValues("mainSymptom").indexOf(OTHER) !== -1);
+        toggleOther("frequencyOtherWrap", $("frequency").value === OTHER);
+        toggleOther("worseWhenOtherWrap", $("worseWhen").value === OTHER);
+        toggleOther("betterWhenOtherWrap", $("betterWhen").value === OTHER);
+        toggleOther("diseaseOtherWrap", getCheckedValues("treatmentDisease").indexOf(OTHER) !== -1);
+        ["workImpact", "sleepImpact", "appetiteImpact", "moodImpact", "dailyImpact"].forEach(function (id) {
+          toggleOther(id + "OtherWrap", $(id).value === OTHER);
+        });
+        toggleOther("questionChoiceOtherWrap", getCheckedValues("questionChoice").indexOf(OTHER) !== -1);
+      }
+
+      function refreshDepartmentSymptoms(selectedValues) {
+        var department = $("department").value || OTHER;
+        renderCheckboxGroup("departmentSymptomChoices", "departmentSymptom", DEPARTMENT_SYMPTOMS[department] || DEPARTMENT_SYMPTOMS[OTHER]);
+        setCheckedValues("departmentSymptom", selectedValues || []);
+        updateConditionalFields();
+      }
+
+      function updateTimelineChoiceOptions() {
+        var options = getTimelineOptions();
+        document.querySelectorAll("#timelineRows .entry-row").forEach(function (row) {
+          var container = row.querySelector('[data-field="courseChoices"]');
+          if (!container) return;
+          var selected = Array.prototype.map.call(container.querySelectorAll("input:checked"), function (input) {
+            return input.value;
+          });
+          container.innerHTML = rowCheckboxGroupHtml(options, selected);
+        });
+      }
+
+      function initChoices() {
+        renderCheckboxGroup("mainSymptomChoices", "mainSymptom", MAIN_SYMPTOMS);
+        renderCheckboxGroup("treatmentDiseaseChoices", "treatmentDisease", TREATMENT_DISEASES);
+        renderCheckboxGroup("questionChoiceGroup", "questionChoice", QUESTION_CHOICES);
+        refreshDepartmentSymptoms([]);
+        fillSelect("severity", ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], false);
+        fillSelect("frequency", FREQUENCIES);
+        fillSelect("worseWhen", WORSE_WHEN);
+        fillSelect("betterWhen", BETTER_WHEN);
+        fillSelect("workImpact", WORK_IMPACTS);
+        fillSelect("sleepImpact", SLEEP_IMPACTS);
+        fillSelect("appetiteImpact", APPETITE_IMPACTS);
+        fillSelect("moodImpact", MOOD_IMPACTS);
+        fillSelect("dailyImpact", DAILY_IMPACTS);
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, function (char) {
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\"": "&quot;",
+            "'": "&#039;"
+          }[char];
+        });
+      }
+
+      function textOrDash(value) {
+        var text = String(value || "").trim();
+        return text ? text : "未入力";
+      }
+
+      function todayString() {
+        var now = new Date();
+        var yyyy = now.getFullYear();
+        var mm = String(now.getMonth() + 1).padStart(2, "0");
+        var dd = String(now.getDate()).padStart(2, "0");
+        return yyyy + "-" + mm + "-" + dd;
+      }
+
+      function formatDate(value) {
+        if (!value) return "";
+        var parts = value.split("-");
+        if (parts.length !== 3) return value;
+        return parts[0] + "/" + parts[1] + "/" + parts[2];
+      }
+
+      function createRow(listName, values) {
+        var def = listDefs[listName];
+        var container = $(def.container);
+        var row = document.createElement("div");
+        row.className = "entry-row";
+        row.dataset.list = listName;
+
+        var index = container.children.length + 1;
+        var fieldsHtml = def.fields.map(function (field) {
+          var key = field[0];
+          var label = field[1];
+          var type = field[2];
+          var value = values && values[key] ? values[key] : "";
+          var control = "";
+          if (type === "textarea") {
+            control = '<textarea data-field="' + key + '">' + escapeHtml(value) + '</textarea>';
+          } else if (type === "checkboxes") {
+            var options = listName === "timeline" ? getTimelineOptions() : (field[3] || []);
+            var selectedValues = Array.isArray(value) ? value : [];
+            control = '<div class="choice-hint">「現在一番困っている症状」の選択に合わせて候補が変わります。</div><div class="choice-group timeline-choice-group" data-field="' + key + '">' + rowCheckboxGroupHtml(options, selectedValues) + '</div>';
+          } else if (type === "select") {
+            control = '<select data-field="' + key + '"><option value="">選択してください</option>' + (field[3] || []).map(function (option) {
+              var selected = value === option ? " selected" : "";
+              return '<option value="' + escapeHtml(option) + '"' + selected + '>' + escapeHtml(option) + '</option>';
+            }).join("") + '</select>';
+          } else {
+            control = '<input data-field="' + key + '" type="' + type + '" value="' + escapeHtml(value) + '">';
+          }
+          var labelClasses = [];
+          if (def.fields.length === 1) labelClasses.push("full");
+          if (type === "checkboxes" || type === "textarea" || key === "courseOther") labelClasses.push("wide-field");
+          if (listName === "timeline" && (key === "actionOther" || key === "resultOther")) labelClasses.push("half-field");
+          if (listName !== "timeline" && /Other$/.test(key)) labelClasses.push("half-field");
+          if (/Other$/.test(key)) labelClasses.push("other-field");
+          return '<label class="' + labelClasses.join(" ") + '">' + label + control + '</label>';
+        }).join("");
+
+        row.innerHTML =
+          '<div class="entry-row-head">' +
+            '<span class="entry-row-title">入力行 ' + index + '</span>' +
+            '<button type="button" class="danger small remove-row">削除</button>' +
+          '</div>' +
+          '<div class="entry-grid">' + fieldsHtml + '</div>';
+        container.appendChild(row);
+        updateRowOtherFields(row);
+      }
+
+      function updateRowOtherFields(row) {
+        row.querySelectorAll('[data-field$="Other"]').forEach(function (input) {
+          var key = input.dataset.field;
+          if (key === "courseOther") {
+            var courseLabel = input.closest("label");
+            if (courseLabel) courseLabel.classList.remove("hidden");
+            return;
+          }
+          var baseKey = key.replace(/Other$/, "");
+          var base = row.querySelector('[data-field="' + baseKey + '"]');
+          var shouldShow = Boolean(input.value.trim()) || (base && base.value === OTHER);
+          var label = input.closest("label");
+          if (label) label.classList.toggle("hidden", !shouldShow);
+        });
+      }
+
+      function renumberRows(listName) {
+        Array.prototype.forEach.call($(listDefs[listName].container).children, function (row, index) {
+          var title = row.querySelector(".entry-row-title");
+          if (title) title.textContent = "入力行 " + (index + 1);
+        });
+      }
+
+      function getListData(listName) {
+        var def = listDefs[listName];
+        return Array.prototype.map.call($(def.container).children, function (row) {
+          var item = {};
+          def.fields.forEach(function (field) {
+            var input = row.querySelector('[data-field="' + field[0] + '"]');
+            if (field[2] === "checkboxes") {
+              item[field[0]] = Array.prototype.map.call(row.querySelectorAll('[data-field="' + field[0] + '"] input:checked'), function (checkbox) {
+                return checkbox.value;
+              });
+            } else {
+              item[field[0]] = input ? input.value.trim() : "";
+            }
+          });
+          return item;
+        }).filter(function (item) {
+          return Object.keys(item).some(function (key) {
+            return Array.isArray(item[key]) ? item[key].length : item[key];
+          });
+        });
+      }
+
+      function setListData(listName, rows) {
+        $(listDefs[listName].container).innerHTML = "";
+        var dataRows = rows && rows.length ? rows : [{}];
+        dataRows.forEach(function (item) {
+          createRow(listName, item);
+        });
+      }
+
+      function migrateSelectValue(data, id, options) {
+        var otherId = id + "Other";
+        if (data[id] && options.indexOf(data[id]) === -1) {
+          data[otherId] = data[otherId] || data[id];
+          data[id] = OTHER;
+        }
+      }
+
+      function migrateListRows(data) {
+        if (!data.lists) data.lists = {};
+        (data.lists.timeline || []).forEach(function (row) {
+          if (row.date && !/^\d{4}-\d{2}-\d{2}$/.test(row.date)) {
+            row.dateApprox = row.dateApprox || row.date;
+            row.date = "";
+          }
+          if (!row.courseChoices) row.courseChoices = [];
+          if (row.event) row.courseOther = row.courseOther || row.event;
+          if (row.symptom) row.courseOther = row.courseOther ? row.courseOther + " / " + row.symptom : row.symptom;
+          if (row.action && TIMELINE_ACTIONS.indexOf(row.action) === -1) {
+            row.actionOther = row.actionOther || row.action;
+            row.action = OTHER;
+          }
+          if (row.result && TIMELINE_RESULTS.indexOf(row.result) === -1) {
+            row.resultOther = row.resultOther || row.result;
+            row.result = OTHER;
+          }
+        });
+        (data.lists.history || []).forEach(function (row) {
+          if (row.period && !row.periodApprox && !row.periodDate) row.periodApprox = row.period;
+          if (row.name && HISTORY_DISEASES.indexOf(row.name) === -1) {
+            row.nameOther = row.nameOther || row.name;
+            row.name = OTHER;
+          }
+          if (row.treatment && HISTORY_TREATMENTS.indexOf(row.treatment) === -1) {
+            row.treatmentOther = row.treatmentOther || row.treatment;
+            row.treatment = OTHER;
+          }
+          if (row.status && HISTORY_STATUSES.indexOf(row.status) === -1) {
+            row.statusOther = row.statusOther || row.status;
+            row.status = OTHER;
+          }
+        });
+        (data.lists.medicine || []).forEach(function (row) {
+          if (row.type && MEDICINE_TYPES.indexOf(row.type) === -1) {
+            row.typeOther = row.typeOther || row.type;
+            row.type = OTHER;
+          }
+          if (row.start && !row.startApprox && !row.startDate) row.startApprox = row.start;
+          if (row.times && MEDICINE_TIMES.indexOf(row.times) === -1) {
+            row.timesOther = row.timesOther || row.times;
+            row.times = OTHER;
+          }
+          if (row.sideEffect && SIDE_EFFECTS.indexOf(row.sideEffect) === -1) {
+            row.sideEffectOther = row.sideEffectOther || row.sideEffect;
+            row.sideEffect = OTHER;
+          }
+        });
+        (data.lists.exam || []).forEach(function (row) {
+          if (row.date && !/^\d{4}-\d{2}-\d{2}$/.test(row.date)) {
+            row.dateApprox = row.dateApprox || row.date;
+            row.date = "";
+          }
+          if (row.content && EXAM_CONTENTS.indexOf(row.content) === -1) {
+            row.contentOther = row.contentOther || row.content;
+            row.content = OTHER;
+          }
+          if (row.result && EXAM_RESULTS.indexOf(row.result) === -1) {
+            row.resultOther = row.resultOther || row.result;
+            row.result = OTHER;
+          }
+        });
+      }
+
+      function getData() {
+        var data = { lists: {} };
+        simpleIds.forEach(function (id) {
+          var el = $(id);
+          data[id] = el && el.type === "checkbox" ? el.checked : (el ? el.value : "");
+        });
+        data.departmentSymptoms = getCheckedValues("departmentSymptom");
+        data.mainSymptoms = getCheckedValues("mainSymptom");
+        data.treatmentDiseases = getCheckedValues("treatmentDisease");
+        data.questionChoices = getCheckedValues("questionChoice");
+        data.departmentDisplay = selectWithOther(data.department, data.departmentOther);
+        data.departmentSymptomsDisplay = joinWithOther(data.departmentSymptoms, data.departmentSymptomOther);
+        data.mainSymptomDisplay = joinWithOther(data.mainSymptoms, data.mainSymptomOther);
+        data.symptomStartDisplay = dateWithApprox(data.symptomStartDate, data.symptomStartApprox);
+        data.createdDateDisplay = dateWithApprox(data.createdDate, data.createdDateApprox);
+        data.frequencyDisplay = selectWithOther(data.frequency, data.frequencyOther);
+        data.worseWhenDisplay = selectWithOther(data.worseWhen, data.worseWhenOther);
+        data.betterWhenDisplay = selectWithOther(data.betterWhen, data.betterWhenOther);
+        data.workImpactDisplay = selectWithOther(data.workImpact, data.workImpactOther);
+        data.sleepImpactDisplay = selectWithOther(data.sleepImpact, data.sleepImpactOther);
+        data.appetiteImpactDisplay = selectWithOther(data.appetiteImpact, data.appetiteImpactOther);
+        data.moodImpactDisplay = selectWithOther(data.moodImpact, data.moodImpactOther);
+        data.dailyImpactDisplay = selectWithOther(data.dailyImpact, data.dailyImpactOther);
+        data.questionChoicesDisplay = joinWithOther(data.questionChoices, data.questionChoiceOther);
+        Object.keys(listDefs).forEach(function (listName) {
+          data.lists[listName] = getListData(listName);
+        });
+        return data;
+      }
+
+      function setData(data) {
+        data = data || {};
+        migrateSelectValue(data, "frequency", FREQUENCIES);
+        migrateSelectValue(data, "worseWhen", WORSE_WHEN);
+        migrateSelectValue(data, "betterWhen", BETTER_WHEN);
+        migrateSelectValue(data, "workImpact", WORK_IMPACTS);
+        migrateSelectValue(data, "sleepImpact", SLEEP_IMPACTS);
+        migrateSelectValue(data, "appetiteImpact", APPETITE_IMPACTS);
+        migrateSelectValue(data, "moodImpact", MOOD_IMPACTS);
+        migrateSelectValue(data, "dailyImpact", DAILY_IMPACTS);
+        migrateListRows(data);
+        if (data.department && DEPARTMENTS.indexOf(data.department) === -1) {
+          data.departmentOther = data.department;
+          data.department = OTHER;
+        }
+        if (data.mainSymptom && !data.mainSymptoms) {
+          data.mainSymptoms = MAIN_SYMPTOMS.indexOf(data.mainSymptom) !== -1 ? [data.mainSymptom] : [OTHER];
+          if (data.mainSymptoms[0] === OTHER) data.mainSymptomOther = data.mainSymptom;
+        }
+        if (data.symptomStart && !data.symptomStartApprox && !data.symptomStartDate) {
+          data.symptomStartApprox = data.symptomStart;
+        }
+        if (data.diseaseDiabetes || data.diseaseHypertension || data.diseaseMental || data.diseaseOtherCheck) {
+          data.treatmentDiseases = data.treatmentDiseases || [];
+          if (data.diseaseDiabetes) data.treatmentDiseases.push("糖尿病");
+          if (data.diseaseHypertension) data.treatmentDiseases.push("高血圧");
+          if (data.diseaseMental) data.treatmentDiseases.push("適応障害");
+          if (data.diseaseOtherCheck) data.treatmentDiseases.push(OTHER);
+        }
+        simpleIds.forEach(function (id) {
+          var el = $(id);
+          if (!el) return;
+          if (el.type === "checkbox") {
+            el.checked = Boolean(data[id]);
+          } else {
+            el.value = data[id] || "";
+          }
+        });
+        refreshDepartmentSymptoms(data.departmentSymptoms || []);
+        setCheckedValues("mainSymptom", data.mainSymptoms || []);
+        setCheckedValues("treatmentDisease", data.treatmentDiseases || []);
+        setCheckedValues("questionChoice", data.questionChoices || []);
+        Object.keys(listDefs).forEach(function (listName) {
+          setListData(listName, data.lists && data.lists[listName]);
+        });
+        updateConditionalFields();
+        updatePreview();
+      }
+
+      function setPreviewText(key, value) {
+        document.querySelectorAll('[data-preview="' + key + '"]').forEach(function (node) {
+          var finalValue = key === "createdDate" ? formatDate(value) : value;
+          node.textContent = textOrDash(finalValue);
+          node.classList.toggle("placeholder", !String(finalValue || "").trim());
+        });
+      }
+
+      function renderTable(tbodyId, rows, fields, emptyRows, alertPredicate) {
+        var html = "";
+        var usefulRows = rows.slice(0, emptyRows);
+        while (usefulRows.length < emptyRows) usefulRows.push({});
+        usefulRows.forEach(function (row) {
+          var alertClass = alertPredicate && alertPredicate(row) ? ' class="alert-row"' : "";
+          html += "<tr" + alertClass + ">" + fields.map(function (field) {
+            return "<td>" + escapeHtml(row[field] || "") + "</td>";
+          }).join("") + "</tr>";
+        });
+        $(tbodyId).innerHTML = html;
+      }
+
+      function renderQuestions() {
+        var data = getData();
+        var questions = [];
+        if (data.questionChoicesDisplay) questions.push(data.questionChoicesDisplay);
+        getListData("question").forEach(function (item) {
+          if (item.text) questions.push(item.text);
+        });
+        var html = questions.slice(0, 6).map(function (text) {
+          return "<li>" + escapeHtml(text) + "</li>";
+        }).join("");
+        if (!html) html = '<li class="placeholder">未入力</li>';
+        $("questionsPreview").innerHTML = html;
+
+        var topHtml = questions.slice(0, 3).map(function (text) {
+          return "<li>" + escapeHtml(text) + "</li>";
+        }).join("");
+        if (!topHtml) topHtml = '<li class="placeholder">未入力</li>';
+        $("topQuestions").innerHTML = topHtml;
+      }
+
+      function renderDiseases(data) {
+        var tags = data.treatmentDiseases || [];
+        $("diseaseTags").innerHTML = tags.length
+          ? tags.map(function (tag) { return '<span class="tag">' + escapeHtml(tag) + '</span>'; }).join("")
+          : '<span class="placeholder">未入力</span>';
+        $("diseaseOtherPreview").textContent = data.diseaseOther || "";
+      }
+
+      function renderImpact(data) {
+        var rows = [
+          ["仕事", data.workImpactDisplay],
+          ["睡眠", data.sleepImpactDisplay],
+          ["食欲", data.appetiteImpactDisplay],
+          ["気分", data.moodImpactDisplay],
+          ["日常", data.dailyImpactDisplay],
+          ["相談", data.leaveConsultation]
+        ];
+        $("impactPreview").innerHTML = rows.map(function (row) {
+          return "<tr><th style=\"width: 25%;\">" + escapeHtml(row[0]) + "</th><td>" + escapeHtml(row[1] || "") + "</td></tr>";
+        }).join("");
+      }
+
+      function timelineAlert(row) {
+        var text = [row.courseDisplay, row.value, row.resultDisplay].join(" ");
+        return /胸痛|息苦|麻痺|ろれつ|激しい頭痛|血圧.*(180|190|200)|180\/|190\/|200\//.test(text);
+      }
+
+      function rowsWithDisplay(listName) {
+        return getListData(listName).map(function (row) {
+          var copy = Object.assign({}, row);
+          if (listName === "timeline") {
+            copy.dateDisplay = dateWithApprox(row.date, row.dateApprox);
+            copy.courseDisplay = joinWithOther(row.courseChoices || [], row.courseOther);
+            copy.actionDisplay = selectWithOther(row.action, row.actionOther);
+            copy.resultDisplay = selectWithOther(row.result, row.resultOther);
+          }
+          if (listName === "history") {
+            copy.periodDisplay = dateWithApprox(row.periodDate, row.periodApprox);
+            copy.nameDisplay = selectWithOther(row.name, row.nameOther);
+            copy.treatmentDisplay = selectWithOther(row.treatment, row.treatmentOther);
+            copy.statusDisplay = selectWithOther(row.status, row.statusOther);
+          }
+          if (listName === "medicine") {
+            copy.typeDisplay = selectWithOther(row.type, row.typeOther);
+            copy.timesDisplay = selectWithOther(row.times, row.timesOther);
+            copy.startDisplay = dateWithApprox(row.startDate, row.startApprox);
+            copy.sideEffectDisplay = selectWithOther(row.sideEffect, row.sideEffectOther);
+          }
+          if (listName === "exam") {
+            copy.dateDisplay = dateWithApprox(row.date, row.dateApprox);
+            copy.contentDisplay = selectWithOther(row.content, row.contentOther);
+            copy.resultDisplay = selectWithOther(row.result, row.resultOther);
+          }
+          return copy;
+        });
+      }
+
+      function promptValue(value) {
+        var text = String(value || "").trim();
+        return text ? text : "未入力";
+      }
+
+      function promptLine(label, value) {
+        return "・" + label + "：" + promptValue(value);
+      }
+
+      function promptRows(listName, labels) {
+        var rows = rowsWithDisplay(listName);
+        if (!rows.length) return "未入力";
+        return rows.map(function (row, index) {
+          var detail = labels.map(function (item) {
+            return item[1] + "：" + promptValue(row[item[0]]);
+          }).join(" / ");
+          return (index + 1) + ". " + detail;
+        }).join("\n");
+      }
+
+      function promptDiseases(data) {
+        var lines = [
+          promptLine("チェック項目", data.treatmentDiseases && data.treatmentDiseases.length ? data.treatmentDiseases.join("、") : "未入力"),
+          promptLine("その他・補足", data.diseaseOther)
+        ];
+        return lines.join("\n");
+      }
+
+      function buildAiPrompt() {
+        var data = getData();
+        return [
+          "あなたは医師向けの診察メモ作成を補助するアシスタントです。",
+          "以下の患者本人の入力内容をもとに、診察時に医師へ見せやすい形で整理してください。",
+          "",
+          "条件：",
+          "・診断はしない",
+          "・薬の変更指示はしない",
+          "・医師に伝えるための要約に徹する",
+          "・A4 1枚程度",
+          "・時系列を重視する",
+          "・重要な症状、血圧、既往歴、服薬、生活や仕事への影響を整理する",
+          "・緊急性が疑われる症状がある場合は「早めに医療機関へ相談」と表現する",
+          "",
+          "出力形式：",
+          "",
+          "1. 現在一番困っていること",
+          "2. 症状の時系列",
+          "3. 既往歴",
+          "4. 現在治療中の病気",
+          "5. 服薬情報",
+          "6. 検査・診察結果",
+          "7. 生活・仕事への影響",
+          "8. 医師に相談したいこと",
+          "9. 医師に特に確認してほしいポイント",
+          "",
+          "以下が入力内容です。",
+          "",
+          "【基本情報】",
+          [
+            promptLine("氏名", data.name),
+            promptLine("年齢", data.age),
+            promptLine("性別", data.gender),
+            promptLine("作成日", data.createdDateDisplay),
+            promptLine("受診科", data.departmentDisplay),
+            promptLine("受診科に合わせた主治医に伝えたい症状", data.departmentSymptomsDisplay),
+            promptLine("主治医に伝えたい一番の目的", data.mainPurpose)
+          ].join("\n"),
+          "",
+          "【現在一番困っている症状】",
+          [
+            promptLine("主症状", data.mainSymptomDisplay),
+            promptLine("いつから", data.symptomStartDisplay),
+            promptLine("症状の強さ", promptValue(data.severity) + " / 10"),
+            promptLine("頻度", data.frequencyDisplay),
+            promptLine("悪化する場面", data.worseWhenDisplay),
+            promptLine("楽になる場面", data.betterWhenDisplay)
+          ].join("\n"),
+          "",
+          "【症状の経過】",
+          promptRows("timeline", [
+            ["dateDisplay", "日付・時期"],
+            ["courseDisplay", "症状経過"],
+            ["value", "血圧や数値"],
+            ["actionDisplay", "対応したこと"],
+            ["resultDisplay", "その後の変化"]
+          ]),
+          "",
+          "【既往歴】",
+          promptRows("history", [
+            ["periodDisplay", "時期"],
+            ["nameDisplay", "病名・けが"],
+            ["treatmentDisplay", "治療内容"],
+            ["statusDisplay", "現在の状態"]
+          ]),
+          "",
+          "【現在治療中の病気】",
+          promptDiseases(data),
+          "",
+          "【服薬情報】",
+          promptRows("medicine", [
+            ["typeDisplay", "薬の種類"],
+            ["name", "薬名"],
+            ["dose", "量"],
+            ["timesDisplay", "回数"],
+            ["startDisplay", "飲み始めた日・時期"],
+            ["sideEffectDisplay", "気になる副作用"]
+          ]),
+          "",
+          "【検査・診察結果】",
+          promptRows("exam", [
+            ["dateDisplay", "検査日・診察日"],
+            ["contentDisplay", "検査内容"],
+            ["resultDisplay", "結果"],
+            ["doctorComment", "医師から言われたこと"]
+          ]),
+          "",
+          "【生活・仕事への影響】",
+          [
+            promptLine("仕事への影響", data.workImpactDisplay),
+            promptLine("睡眠", data.sleepImpactDisplay),
+            promptLine("食欲", data.appetiteImpactDisplay),
+            promptLine("気分", data.moodImpactDisplay),
+            promptLine("家事や日常生活への影響", data.dailyImpactDisplay),
+            promptLine("休職や入院の相談状況", data.leaveConsultation)
+          ].join("\n"),
+          "",
+          "【医師に相談したいこと】",
+          promptLine("選択した相談事項", data.questionChoicesDisplay) + "\n" +
+          promptRows("question", [
+            ["text", "相談したいこと"]
+          ])
+        ].join("\n");
+      }
+
+      function createAiPrompt() {
+        $("aiPromptText").value = buildAiPrompt();
+        setStatus("AI要約用テキストを作成しました");
+      }
+
+      function copyAiPrompt() {
+        if (!$("aiPromptText").value.trim()) createAiPrompt();
+        var text = $("aiPromptText").value;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            setStatus("コピーしました");
+          }).catch(function () {
+            fallbackCopyAiPrompt();
+          });
+          return;
+        }
+        fallbackCopyAiPrompt();
+      }
+
+      function fallbackCopyAiPrompt() {
+        var textarea = $("aiPromptText");
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          setStatus("コピーしました");
+        } catch (error) {
+          setStatus("コピーできませんでした");
+        }
+      }
+
+      function openChatGpt() {
+        window.open("https://chatgpt.com/", "_blank", "noopener");
+      }
+
+      function updatePreview() {
+        var data = getData();
+        simpleIds.forEach(function (id) {
+          if ($(id).type !== "checkbox") setPreviewText(id, data[id]);
+        });
+        setPreviewText("createdDate", data.createdDateDisplay);
+        setPreviewText("department", data.departmentDisplay);
+        setPreviewText("departmentSymptoms", data.departmentSymptomsDisplay);
+        setPreviewText("mainSymptom", data.mainSymptomDisplay);
+        setPreviewText("symptomStart", data.symptomStartDisplay);
+        setPreviewText("frequency", data.frequencyDisplay);
+        setPreviewText("worseWhen", data.worseWhenDisplay);
+        setPreviewText("betterWhen", data.betterWhenDisplay);
+
+        $("severityPreview").textContent = (data.severity || "0") + " / 10";
+        $("importantBox").classList.toggle("high-alert", Number(data.severity) >= 8);
+
+        renderTable("timelinePreview", rowsWithDisplay("timeline"), ["dateDisplay", "courseDisplay", "value", "actionDisplay", "resultDisplay"], 5, timelineAlert);
+        renderTable("historyPreview", rowsWithDisplay("history"), ["periodDisplay", "nameDisplay", "treatmentDisplay", "statusDisplay"], 4);
+        renderTable("medicinePreview", rowsWithDisplay("medicine"), ["typeDisplay", "name", "dose", "timesDisplay", "startDisplay", "sideEffectDisplay"], 4);
+        renderTable("examPreview", rowsWithDisplay("exam"), ["dateDisplay", "contentDisplay", "resultDisplay", "doctorComment"], 4);
+        renderDiseases(data);
+        renderImpact(data);
+        renderQuestions();
+      }
+
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getData()));
+        setStatus("保存しました");
+      }
+
+      function loadData() {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          setStatus("保存データなし");
+          return;
+        }
+        try {
+          setData(JSON.parse(raw));
+          setStatus("読み込みました");
+        } catch (error) {
+          setStatus("読み込み失敗");
+        }
+      }
+
+      function clearData() {
+        if (!confirm("入力内容をすべてクリアします。保存済みデータは削除しません。よろしいですか？")) return;
+        var blank = { createdDate: todayString(), severity: "0", lists: {} };
+        Object.keys(listDefs).forEach(function (listName) {
+          blank.lists[listName] = [{}];
+        });
+        setData(blank);
+        setStatus("クリアしました");
+      }
+
+      function setStatus(message) {
+        $("savedStatus").textContent = message;
+        window.clearTimeout(setStatus.timer);
+        setStatus.timer = window.setTimeout(function () {
+          $("savedStatus").textContent = "";
+        }, 2600);
+      }
+
+      function sampleData() {
+        return {
+          name: "山田 太郎",
+          age: "68",
+          gender: "男性",
+          createdDate: todayString(),
+          department: "循環器内科",
+          departmentSymptoms: ["血圧が高い", "動悸", "疲れやすい"],
+          mainPurpose: "最近の血圧上昇、頭痛、仕事への影響について、治療方針と必要な検査を相談したい。",
+          mainSymptoms: ["血圧が高い", "頭痛", "動悸"],
+          symptomStartApprox: "約2週間前から",
+          severity: "7",
+          frequency: "朝に強い",
+          frequencyOther: "仕事後にも強い",
+          worseWhen: "寝不足の時",
+          worseWhenOther: "忙しい日、長時間の作業後",
+          betterWhen: "横になる",
+          betterWhenOther: "深呼吸、処方薬を飲んだ後",
+          treatmentDiseases: ["高血圧", "糖尿病", "脂質異常症", "その他"],
+          diseaseOther: "脂質異常症で経過観察中。",
+          workImpact: "勤務はできるがつらい",
+          workImpactOther: "集中力が落ち、午後に休憩が必要。残業は難しい。",
+          sleepImpact: "途中で目が覚める",
+          sleepImpactOther: "平均5時間程度。",
+          appetiteImpact: "少ない",
+          moodImpact: "不安が強い",
+          moodImpactOther: "血圧測定のたびに緊張する。",
+          dailyImpact: "家事がつらい",
+          dailyImpactOther: "買い物の途中で休むことが増えた。",
+          leaveConsultation: "休職や入院が必要か、目安を相談したい。",
+          questionChoices: ["検査が必要か相談したい", "薬の副作用を確認したい", "仕事を続けてよいか相談したい"],
+          lists: {
+            timeline: [
+              { dateApprox: "5/20", courseChoices: ["頭痛あり", "仕事中に強い"], courseOther: "ふらつきもあり", value: "血圧 168/96", action: "休んだ", actionOther: "水分補給", result: "少し改善した", resultOther: "1時間で少し改善" },
+              { dateApprox: "5/28", courseChoices: ["家庭血圧が高い", "上が160以上", "頭痛あり"], courseOther: "朝に後頭部痛", value: "血圧 176/102", action: "薬を飲んだ", result: "少し改善した", resultOther: "昼に150台まで低下" },
+              { dateApprox: "6/3", courseChoices: ["ドキドキする", "息苦しさを伴う"], courseOther: "通勤中に強い", value: "脈拍 98", action: "様子を見た", actionOther: "駅で休憩", result: "一時的だった", resultOther: "20分で落ち着いた" }
+            ],
+            history: [
+              { periodApprox: "約45年前", name: "けが・骨折", nameOther: "交通事故で前頭部右側を骨折", treatment: "入院した", status: "現在は症状なし" },
+              { periodApprox: "10年前", name: "糖尿病", treatment: "薬を服用中", status: "治療中" }
+            ],
+            medicine: [
+              { type: "血圧の薬", name: "アムロジピン", dose: "5mg", times: "1日1回", startApprox: "3年前", sideEffect: "その他", sideEffectOther: "足のむくみが気になる" },
+              { type: "糖尿病の薬", name: "メトホルミン", dose: "500mg", times: "1日2回", startApprox: "10年前", sideEffect: "効果が分からない" }
+            ],
+            exam: [
+              { dateApprox: "5/30", content: "血液検査", result: "経過観察", resultOther: "HbA1c 7.1", doctorComment: "食事と運動を継続" },
+              { dateApprox: "6/5", content: "血圧測定", result: "生活改善指導", resultOther: "診察室 172/98", doctorComment: "家庭血圧を記録するよう指示" }
+            ],
+            question: [
+              { text: "頭痛と血圧上昇の原因として追加検査は必要か。" },
+              { text: "薬の調整や副作用について相談したい。" },
+              { text: "仕事を続けるうえで注意する基準を知りたい。" }
+            ]
+          }
+        };
+      }
+
+      document.addEventListener("input", function (event) {
+        if (event.target.matches("input, textarea, select")) updatePreview();
+      });
+
+      document.addEventListener("change", function (event) {
+        if (event.target.id === "department") {
+          refreshDepartmentSymptoms([]);
+        }
+        if (event.target.name === "mainSymptom") {
+          updateTimelineChoiceOptions();
+        }
+        if (event.target.matches("input, textarea, select")) {
+          var entryRow = event.target.closest(".entry-row");
+          if (entryRow) updateRowOtherFields(entryRow);
+          updateConditionalFields();
+          updatePreview();
+        }
+      });
+
+      document.addEventListener("click", function (event) {
+        var addBtn = event.target.closest(".add-row");
+        if (addBtn) {
+          createRow(addBtn.dataset.list, {});
+          updatePreview();
+          return;
+        }
+
+        var removeBtn = event.target.closest(".remove-row");
+        if (removeBtn) {
+          var row = removeBtn.closest(".entry-row");
+          var listName = row.dataset.list;
+          row.remove();
+          if (!$(listDefs[listName].container).children.length) createRow(listName, {});
+          renumberRows(listName);
+          updatePreview();
+        }
+      });
+
+      $("saveBtn").addEventListener("click", saveData);
+      $("loadBtn").addEventListener("click", loadData);
+      $("clearBtn").addEventListener("click", clearData);
+      $("createAiPromptBtn").addEventListener("click", createAiPrompt);
+      $("copyAiPromptBtn").addEventListener("click", copyAiPrompt);
+      $("openChatGptBtn").addEventListener("click", openChatGpt);
+      $("printBtn").addEventListener("click", function () {
+        updatePreview();
+        window.print();
+      });
+      $("sampleBtn").addEventListener("click", function () {
+        setData(sampleData());
+        setStatus("サンプルを入力しました");
+      });
+
+      function init() {
+        initChoices();
+        var initial = { createdDate: todayString(), severity: "0", lists: {} };
+        Object.keys(listDefs).forEach(function (listName) {
+          initial.lists[listName] = [{}];
+        });
+        setData(initial);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
