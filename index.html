@@ -409,6 +409,29 @@
       font-size: 12px;
     }
 
+    .preview-notice {
+      max-width: 1360px;
+      margin: 14px auto 0;
+      padding: 0 20px;
+    }
+
+    .preview-notice-inner {
+      padding: 12px 14px;
+      border: 1px solid #a8cde9;
+      border-radius: 8px;
+      color: #123b61;
+      background: var(--blue-soft);
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .preview-notice.expired .preview-notice-inner {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: #f4b7b0;
+    }
+
     .ai-summary-panel {
       margin-top: 16px;
       padding: 14px;
@@ -714,6 +737,7 @@
       .form-panel,
       .ai-summary-panel,
       .panel-head,
+      .preview-notice,
       .note,
       .copyright {
         display: none !important;
@@ -772,6 +796,10 @@
       </div>
     </div>
   </header>
+
+  <section class="preview-notice" id="previewNotice" aria-live="polite">
+    <div class="preview-notice-inner" id="previewNoticeText">プレビュー版の利用期限は2026年7月31日までです。</div>
+  </section>
 
   <main class="workspace">
     <section class="form-panel" aria-label="入力フォーム">
@@ -1034,6 +1062,7 @@
       "use strict";
 
       var STORAGE_KEY = "medical_summary_sheet_v1";
+      var PREVIEW_END_DATE = new Date("2026-07-31T23:59:59+09:00");
       var OTHER = "その他";
       var DEPARTMENTS = ["内科", "循環器内科", "糖尿病内科", "心療内科", "精神科", "耳鼻咽喉科", "脳神経内科", "整形外科", "消化器内科", "皮膚科", "その他"];
       var DEPARTMENT_SYMPTOMS = {
@@ -1347,6 +1376,29 @@
         var mm = String(now.getMonth() + 1).padStart(2, "0");
         var dd = String(now.getDate()).padStart(2, "0");
         return yyyy + "-" + mm + "-" + dd;
+      }
+
+      function formatJapaneseDate(date) {
+        return date.getFullYear() + "年" + (date.getMonth() + 1) + "月" + date.getDate() + "日";
+      }
+
+      function isPreviewExpired() {
+        return new Date().getTime() > PREVIEW_END_DATE.getTime();
+      }
+
+      function applyPreviewLimit() {
+        var expired = isPreviewExpired();
+        var notice = $("previewNotice");
+        var text = $("previewNoticeText");
+        if (notice) notice.classList.toggle("expired", expired);
+        if (text) {
+          text.textContent = expired
+            ? "このプレビュー版の利用期限は" + formatJapaneseDate(PREVIEW_END_DATE) + "で終了しました。現在は入力・保存・印刷などの操作を停止しています。"
+            : "プレビュー版の利用期限は" + formatJapaneseDate(PREVIEW_END_DATE) + "までです。正式公開に向けて内容を調整中です。";
+        }
+        document.querySelectorAll(".form-panel input, .form-panel select, .form-panel textarea, .form-panel button, .toolbar button").forEach(function (control) {
+          control.disabled = expired;
+        });
       }
 
       function formatDate(value) {
@@ -1841,11 +1893,19 @@
       }
 
       function createAiPrompt() {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         $("aiPromptText").value = buildAiPrompt();
         setStatus("AI要約用テキストを作成しました");
       }
 
       function copyAiPrompt() {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         if (!$("aiPromptText").value.trim()) createAiPrompt();
         var text = $("aiPromptText").value;
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1872,6 +1932,10 @@
       }
 
       function openChatGpt() {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         window.open("https://chatgpt.com/", "_blank", "noopener");
       }
 
@@ -1902,11 +1966,19 @@
       }
 
       function saveData() {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(getData()));
         setStatus("保存しました");
       }
 
       function loadData() {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         var raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) {
           setStatus("保存データなし");
@@ -1921,6 +1993,10 @@
       }
 
       function clearData() {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         if (!confirm("入力内容をすべてクリアします。保存済みデータは削除しません。よろしいですか？")) return;
         var blank = { createdDate: todayString(), severity: "0", lists: {} };
         Object.keys(listDefs).forEach(function (listName) {
@@ -2041,10 +2117,18 @@
       $("copyAiPromptBtn").addEventListener("click", copyAiPrompt);
       $("openChatGptBtn").addEventListener("click", openChatGpt);
       $("printBtn").addEventListener("click", function () {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         updatePreview();
         window.print();
       });
       $("sampleBtn").addEventListener("click", function () {
+        if (isPreviewExpired()) {
+          setStatus("プレビュー版の利用期限が終了しています");
+          return;
+        }
         setData(sampleData());
         setStatus("サンプルを入力しました");
       });
@@ -2056,6 +2140,7 @@
           initial.lists[listName] = [{}];
         });
         setData(initial);
+        applyPreviewLimit();
       }
 
       init();
