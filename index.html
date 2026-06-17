@@ -3,7 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>診察メモメーカー</title>
+  <title>体調・既往歴まとめシート｜診察前の症状・服薬情報整理ツール</title>
+  <meta name="description" content="診察前に症状・既往歴・服薬情報・検査結果を整理し、医師へ分かりやすく伝えるための無料Webアプリです。高血圧、糖尿病、耳鳴り、慢性疾患の記録にも活用できます。">
+  <link rel="canonical" href="https://mazemon-rin.github.io/shinsatsu-memosheet/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:title" content="体調・既往歴まとめシート｜診察前の症状・服薬情報整理ツール">
+  <meta property="og:description" content="診察前に症状・既往歴・服薬情報・検査結果を整理し、医師へ分かりやすく伝えるための無料Webアプリです。高血圧、糖尿病、耳鳴り、慢性疾患の記録にも活用できます。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mazemon-rin.github.io/shinsatsu-memosheet/">
+  <meta property="og:image" content="https://mazemon-rin.github.io/shinsatsu-memosheet/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="google-site-verification" content="LsexXViubeVV4Ol9pE-YVynt5bUe-f_ig6KfmXkwtrc" />
   <!-- Google Analytics Start -->
   <!-- Google tag (gtag.js) -->
@@ -15,6 +25,17 @@
     gtag('config', 'G-R10Z47JCT5');
   </script>
   <!-- Google Analytics End -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "診察メモメーカー",
+      "description": "診察前に症状・既往歴・服薬情報・検査結果を整理し、医師へ分かりやすく伝えるための無料Webアプリです。高血圧、糖尿病、耳鳴り、慢性疾患の記録にも活用できます。",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Any",
+      "url": "https://mazemon-rin.github.io/shinsatsu-memosheet/"
+    }
+  </script>
   <style>
     :root {
       --blue: #1d6fb8;
@@ -798,11 +819,11 @@
         <p class="app-subtitle">入力内容はこのPC・タブレット・スマホなど、今使っている端末のブラウザ内だけで扱います。サーバーへ送信されません。</p>
       </div>
       <div class="toolbar" aria-label="操作">
-        <button type="button" class="secondary" id="sampleBtn">サンプル入力</button>
-        <button type="button" class="green" id="saveBtn">ローカル保存</button>
-        <button type="button" class="secondary" id="loadBtn">保存データ読み込み</button>
-        <button type="button" id="printBtn">印刷</button>
-        <button type="button" class="danger" id="clearBtn">入力クリア</button>
+        <button type="button" class="secondary" id="sampleBtn" aria-label="サンプル入力を反映する">サンプル入力</button>
+        <button type="button" class="green" id="saveBtn" aria-label="入力内容をこの端末のブラウザに保存する">ローカル保存</button>
+        <button type="button" class="secondary" id="loadBtn" aria-label="この端末のブラウザに保存したデータを読み込む">保存データ読み込み</button>
+        <button type="button" id="printBtn" aria-label="完成プレビューを印刷する">印刷</button>
+        <button type="button" class="danger" id="clearBtn" aria-label="入力内容をすべてクリアする">入力クリア</button>
         <span class="saved-status" id="savedStatus" aria-live="polite"></span>
       </div>
     </div>
@@ -892,7 +913,7 @@
           <summary>3. 症状の経過</summary>
           <div class="section-fields">
             <div class="rows" id="timelineRows"></div>
-            <div class="actions-line"><button type="button" class="secondary add-row" data-list="timeline">行を追加</button></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="timeline" aria-label="症状の経過の入力行を追加する">行を追加</button></div>
           </div>
         </details>
 
@@ -900,7 +921,7 @@
           <summary>4. 既往歴</summary>
           <div class="section-fields">
             <div class="rows" id="historyRows"></div>
-            <div class="actions-line"><button type="button" class="secondary add-row" data-list="history">行を追加</button></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="history" aria-label="既往歴の入力行を追加する">行を追加</button></div>
           </div>
         </details>
 
@@ -916,7 +937,7 @@
           <summary>6. 服薬情報</summary>
           <div class="section-fields">
             <div class="rows" id="medicineRows"></div>
-            <div class="actions-line"><button type="button" class="secondary add-row" data-list="medicine">行を追加</button></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="medicine" aria-label="服薬情報の入力行を追加する">行を追加</button></div>
           </div>
         </details>
 
@@ -924,7 +945,7 @@
           <summary>7. 検査・診察結果</summary>
           <div class="section-fields">
             <div class="rows" id="examRows"></div>
-            <div class="actions-line"><button type="button" class="secondary add-row" data-list="exam">行を追加</button></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="exam" aria-label="検査・診察結果の入力行を追加する">行を追加</button></div>
           </div>
         </details>
 
@@ -951,7 +972,7 @@
             <div class="choice-group three" id="questionChoiceGroup"></div>
             <label class="other-field hidden" id="questionChoiceOtherWrap">その他・自由入力<input id="questionChoiceOther" type="text"></label>
             <div class="rows" id="questionRows"></div>
-            <div class="actions-line"><button type="button" class="secondary add-row" data-list="question">行を追加</button></div>
+            <div class="actions-line"><button type="button" class="secondary add-row" data-list="question" aria-label="医師に相談したいことの入力行を追加する">行を追加</button></div>
           </div>
         </details>
 
@@ -959,9 +980,9 @@
           <h3>AI要約用テキスト</h3>
           <p class="ai-summary-note">AI要約を使う場合は、個人情報や医療情報を外部サービスに入力することになります。氏名や住所など、不要な個人情報は削除してから利用してください。この機能は診断ではなく、診察時の説明補助を目的としています。</p>
           <div class="ai-summary-actions">
-            <button type="button" id="createAiPromptBtn">AI要約用テキストを作成</button>
-            <button type="button" class="secondary" id="copyAiPromptBtn">コピー</button>
-            <button type="button" class="green" id="openChatGptBtn">ChatGPTを開く</button>
+            <button type="button" id="createAiPromptBtn" aria-label="AI要約用テキストを作成する">AI要約用テキストを作成</button>
+            <button type="button" class="secondary" id="copyAiPromptBtn" aria-label="AI要約用テキストをコピーする">コピー</button>
+            <button type="button" class="green" id="openChatGptBtn" aria-label="ChatGPTを新しいタブで開く">ChatGPTを開く</button>
           </div>
           <label class="ai-output-label">生成されたプロンプト
             <textarea id="aiPromptText" class="ai-output" placeholder="「AI要約用テキストを作成」を押すと、ChatGPTに貼り付ける文章がここに表示されます。"></textarea>
@@ -1250,12 +1271,6 @@
         return html;
       }
 
-      function legacyCheckboxGroupHtml(name, options) {
-        return options.map(function (option) {
-          return '<label class="check-line"><input type="checkbox" name="' + name + '" value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</label>';
-        }).join("");
-      }
-
       function getCheckedValues(name) {
         return Array.prototype.map.call(document.querySelectorAll('input[name="' + name + '"]:checked'), function (input) {
           return input.value;
@@ -1459,7 +1474,7 @@
         row.innerHTML =
           '<div class="entry-row-head">' +
             '<span class="entry-row-title">入力行 ' + index + '</span>' +
-            '<button type="button" class="danger small remove-row">削除</button>' +
+            '<button type="button" class="danger small remove-row" aria-label="この入力行を削除する">削除</button>' +
           '</div>' +
           '<div class="entry-grid">' + fieldsHtml + '</div>';
         container.appendChild(row);
