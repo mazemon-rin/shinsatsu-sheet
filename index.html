@@ -978,7 +978,7 @@
 
         <section class="ai-summary-panel" aria-label="AI要約用テキスト">
           <h3>AI要約用テキスト</h3>
-          <p class="ai-summary-note">AI要約を使う場合は、個人情報や医療情報を外部サービスに入力することになります。氏名や住所など、不要な個人情報は削除してから利用してください。この機能は診断ではなく、診察時の説明補助を目的としています。</p>
+          <p class="ai-summary-note">AI要約を使う場合は、個人情報や医療情報を外部サービスに入力することになります。AI要約用テキストには氏名は含まないように生成されますが、住所など不要な個人情報が自由入力欄に含まれていないか確認してから利用してください。この機能は診断ではなく、診察時の説明補助を目的としています。</p>
           <div class="ai-summary-actions">
             <button type="button" id="createAiPromptBtn" aria-label="AI要約用テキストを作成する">AI要約用テキストを作成</button>
             <button type="button" class="secondary" id="copyAiPromptBtn" aria-label="AI要約用テキストをコピーする">コピー</button>
@@ -1843,7 +1843,6 @@
           "",
           "【基本情報】",
           [
-            promptLine("氏名", data.name),
             promptLine("年齢", data.age),
             promptLine("性別", data.gender),
             promptLine("作成日", data.createdDateDisplay),
